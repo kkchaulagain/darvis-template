@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        tty: true
+        ports:
+            - "8002:80"
+        depends_on:
+            - mysql
+        networks:
+            - darvis
+    mysql:
+        image: mysql:5.7
+        restart: always
+        container_name: mysqldb_container
+        hostname: mysql
+        command: --default-authentication-plugin=mysql_native_password --sql_mode=
+        environment:
+            MYSQL_ROOT_PASSWORD: root123
+        ports:
+            - 3308:3306
+        volumes:
+            - .data/mysql:/var/lib/mysql
+        networks:
+            - darvis
+
+    phpmyadmin:
+        depends_on:
+            - mysql
+        image: phpmyadmin/phpmyadmin
+        restart: always
+        ports:
+            - "8010:80"
+        environment:
+            PMA_HOST: mysql
+            MYSQL_ROOT_PASSWORD: root123
+        networks:
+            - darvis
+networks:
+    darvis:
+        driver: "bridge"
